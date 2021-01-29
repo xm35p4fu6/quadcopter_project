@@ -1,0 +1,29 @@
+# Project: 專案2
+# Makefile created by Dev-C++ 5.4.2
+
+CPP      = g++.exe
+CC       = gcc.exe
+WINDRES  = windres.exe
+OBJ      = ../server_CODE.o
+LINKOBJ  = ../server_CODE.o
+LIBS     = -L"D:/C++/Dev-Cpp Portable/64位元/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc "D:/C++/Dev-Cpp Portable/64位元/MinGW64/x86_64-w64-mingw32/lib/libws2_32.a"  -g3
+INCS     = -I"D:/C++/Dev-Cpp Portable/64位元/MinGW64/x86_64-w64-mingw32/include"
+CXXINCS  = -I"D:/C++/Dev-Cpp Portable/64位元/MinGW64/x86_64-w64-mingw32/include"
+BIN      = 專案2.exe
+CXXFLAGS = $(CXXINCS) -g3
+CFLAGS   = $(INCS) -g3
+RM       = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
+
+../server_CODE.o: ../server_CODE.cpp
+	$(CPP) -c ../server_CODE.cpp -o ../server_CODE.o $(CXXFLAGS)

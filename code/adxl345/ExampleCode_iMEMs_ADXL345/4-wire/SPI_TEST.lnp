@@ -1,0 +1,7 @@
+"startup.obj",
+"MAIN.obj",
+"SPI.obj" 
+TO "SPI_TEST" 
+CASE 
+CLASSES (DATA (0x10000-0x11FFF), 
+CODE (0x80000-0x8F7FF), CONST (0x80000-0x8F7FF)) 

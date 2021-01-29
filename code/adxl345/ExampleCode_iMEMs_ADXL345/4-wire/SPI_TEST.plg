@@ -1,0 +1,17 @@
+<html>
+<body>
+<pre>
+<h1>µVision3 Build Log</h1>
+<h2>Project:</h2>
+D:\reference design\Mems\ADXL345\SPI Interface\4-wire\SPI_TEST.uv2
+Project File Date:  09/24/2009
+
+<h2>Output:</h2>
+Build target 'Target 1'
+assembling startup.s...
+compiling MAIN.C...
+compiling SPI.C...
+linking...
+Program Size: data=1172 const=24 code=976
+creating hex file from "SPI_TEST"...
+"SPI_TEST" - 0 Error(s), 0 Warning(s).

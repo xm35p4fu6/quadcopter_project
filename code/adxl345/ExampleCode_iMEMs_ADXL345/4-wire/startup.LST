@@ -1,0 +1,507 @@
+AA MACRO ASSEMBLER RSTARTUP                                                                 16/12/09 15:50:55 PAGE     1
+
+
+MACRO ASSEMBLER AA V2.40a
+OBJECT MODULE PLACED IN startup.OBJ
+ASSEMBLER INVOKED BY: C:\Keil\ARM\BIN\AA.exe startup.s BROWSE DEBUG EP
+
+LOC      OBJ             LINE     SOURCE
+
+                          1     
+                          2     
+                          3     
+                          4     
+                          5     
+                          6     
+                          7     
+                          8     
+                          9     
+                         10     
+                         11     
+                         12     
+                         13     
+                         14     
+                         15     
+                         16     
+                         17     
+                         18     
+                         19     
+                         20     
+                         21     
+                         22     
+                         23     
+                         24     
+                         25     
+                         26     
+                         27     
+ 0010                    28             Mode_USR  EQU      0x10
+ 0011                    29             Mode_FIQ  EQU      0x11
+ 0012                    30             Mode_IRQ  EQU      0x12
+ 0013                    31             Mode_SVC  EQU      0x13
+ 0017                    32             Mode_ABT  EQU      0x17
+ 001B                    33             Mode_UND  EQU      0x1B
+ 001F                    34             Mode_SYS  EQU      0x1F
+                         35     
+ 0080                    36             I_Bit     EQU      0x80     
+ 0040                    37             F_Bit     EQU      0x40     
+                         38     
+                         39     
+                         40     
+                         41     
+                         42     
+                         43     
+                         44     
+                         45     
+                         46     
+                         47     
+                         48     
+                         49     
+ 0004                    50             UND_Stack_Size  EQU     0x00000004
+ 0004                    51             SVC_Stack_Size  EQU     0x00000004
+ 0004                    52             ABT_Stack_Size  EQU     0x00000004
+ 0004                    53             FIQ_Stack_Size  EQU     0x00000004
+ 0080                    54             IRQ_Stack_Size  EQU     0x00000080
+ 0400                    55             USR_Stack_Size  EQU     0x00000400
+                         56     
+00000000                 57     AREA   STACK, DATA, READWRITE, ALIGN=2
+00000000                 58             DS   (USR_Stack_Size+3)&~3  ; Stack for User/System Mode 
+AA MACRO ASSEMBLER RSTARTUP                                                                 16/12/09 15:50:55 PAGE     2
+
+00000400                 59             DS   (SVC_Stack_Size+3)&~3  ; Stack for Supervisor Mode
+00000404                 60             DS   (IRQ_Stack_Size+3)&~3  ; Stack for Interrupt Mode
+00000484                 61             DS   (FIQ_Stack_Size+3)&~3  ; Stack for Fast Interrupt Mode 
+00000488                 62             DS   (ABT_Stack_Size+3)&~3  ; Stack for Abort Mode
+0000048C                 63             DS   (UND_Stack_Size+3)&~3  ; Stack for Undefined Mode
+00000490                 64     Top_Stack:
+                         65     
+                         66     
+                         67     
+ FFFF0000                68             MMR_BASE        EQU     0xFFFF0000      ; MMR Base Address
+ 0220                    69             REMAP_OFFSET    EQU         0x0220
+ 0224                    70             PREMAP_OFFSET   EQU         0x0224
+ 0404                    71             POWKEY1_OFFSET  EQU         0x0404
+ 0408                    72             POWCON_OFFSET   EQU         0x0408
+ 040C                    73             POWKEY2_OFFSET  EQU         0x040C
+                         74     
+                         75     
+                         76     
+                         77     
+                         78     
+                         79     
+                         80     
+                         81     
+                         82     
+                         83     
+                         84     
+ 0001                    85             PLL_SETUP       EQU     1
+ 0001                    86             PLLCFG_Val      EQU     0x00000001
+                         87     
+                         88     
+                         89     
+ 0000                    90             GPIO_SETUP      EQU     0
+ FFFFF400                91             GPIOBASE        EQU     0xFFFFF400
+                         92     
+                         93     
+                         94     
+                         95     
+                         96     
+                         97     
+                         98     
+                         99     
+                        100     
+                        101     
+                        102     
+ 0000                   103             GP0CON_Val      EQU     0x00000000
+                        104     
+                        105     
+                        106     
+                        107     
+                        108     
+                        109     
+                        110     
+                        111     
+                        112     
+                        113     
+                        114     
+ 0000                   115             GP1CON_Val      EQU     0x00000000
+                        116     
+                        117     
+                        118     
+                        119     
+                        120     
+                        121     
+                        122     
+                        123     
+                        124     
+AA MACRO ASSEMBLER RSTARTUP                                                                 16/12/09 15:50:55 PAGE     3
+
+                        125     
+                        126     
+ 0000                   127             GP2CON_Val      EQU     0x00000000
+                        128     
+                        129     
+                        130     
+                        131     
+                        132     
+                        133     
+                        134     
+                        135     
+                        136     
+                        137     
+                        138     
+ 0000                   139             GP3CON_Val      EQU     0x00000000
+                        140     
+                        141     
+                        142     
+                        143     
+                        144     
+                        145     
+                        146     
+                        147     
+                        148     
+                        149     
+                        150     
+ 0000                   151             GP4CON_Val      EQU     0x00000000
+                        152     
+                        153     
+                        154     
+                        155     
+                        156     
+ 0000                   157             XM_SETUP        EQU     0
+ FFFFF000               158             XMBASE          EQU     0xFFFFF000
+                        159     
+                        160     
+                        161     
+                        162     
+                        163     
+                        164     
+                        165     
+                        166     
+                        167     
+                        168     
+                        169     
+                        170     
+                        171     
+                        172     
+                        173     
+ 0000                   174             XM0CON_Val      EQU     0x00000000
+ 70FF                   175             XM0PAR_Val      EQU     0x000070FF
+                        176     
+                        177     
+                        178     
+                        179     
+                        180     
+                        181     
+                        182     
+                        183     
+                        184     
+                        185     
+                        186     
+                        187     
+                        188     
+                        189     
+                        190     
+AA MACRO ASSEMBLER RSTARTUP                                                                 16/12/09 15:50:55 PAGE     4
+
+ 0000                   191             XM1CON_Val      EQU     0x00000000
+ 70FF                   192             XM1PAR_Val      EQU     0x000070FF
+                        193     
+                        194     
+                        195     
+                        196     
+                        197     
+                        198     
+                        199     
+                        200     
+                        201     
+                        202     
+                        203     
+                        204     
+                        205     
+                        206     
+                        207     
+ 0000                   208             XM2CON_Val      EQU     0x00000000
+ 70FF                   209             XM2PAR_Val      EQU     0x000070FF
+                        210     
+                        211     
+                        212     
+                        213     
+                        214     
+                        215     
+                        216     
+                        217     
+                        218     
+                        219     
+                        220     
+                        221     
+                        222     
+                        223     
+                        224     
+ 0000                   225             XM3CON_Val      EQU     0x00000000
+ 70FF                   226             XM3PAR_Val      EQU     0x000070FF
+                        227     
+                        228     
+ 0001                   229             XMCFG_Val       EQU     0x00000001
+                        230     
+                        231     
+                        232     
+                        233     
+                        234     
+                        235     $if  (RAM_INTVEC)
+                                
+                                AREA   VECTORS, DATA, AT 0x00010000
+                                                DS      64
+                                $endif         
+                        240             
+                        241     
+                        242     
+                        243                                                                             
+00080000                244     AREA   STARTUPCODE, CODE, AT 0x00080000
+                        245            PUBLIC  __startup
+                        246     
+                        247            EXTERN  CODE32 (?C?INIT)
+                        248     
+                        249     __startup       PROC    CODE32
+                        250     
+                        251     
+                        252     
+                        253     EXTERN CODE32 (Undef_Handler?A)
+                        254     EXTERN CODE32 (SWI_Handler?A)
+                        255     EXTERN CODE32 (PAbt_Handler?A)
+                        256     EXTERN CODE32 (DAbt_Handler?A)
+AA MACRO ASSEMBLER RSTARTUP                                                                 16/12/09 15:50:55 PAGE     5
+
+                        257     EXTERN CODE32 (IRQ_Handler?A)
+                        258     EXTERN CODE32 (FIQ_Handler?A)
+                        259     
+                        260     
+                        261     
+                        262     
+                        263     
+00080000 E59FF000       264     Vectors:        LDR     PC,Reset_Addr         
+00080004 E59FF000       265                     LDR     PC,Undef_Addr
+00080008 E59FF000       266                     LDR     PC,SWI_Addr
+0008000C E59FF000       267                     LDR     PC,PAbt_Addr
+00080010 E59FF000       268                     LDR     PC,DAbt_Addr
+00080014 E1A00000       269                     NOP                             
+00080018 E59FF000       270                     LDR     PC,IRQ_Addr
+0008001C E59FF000       271                     LDR     PC,FIQ_Addr
+                        272     
+00080020 00080040 R     273     Reset_Addr:     DD      Reset_Handler
+00080024 00000000 E     274     Undef_Addr:     DD      Undef_Handler?A
+00080028 00000000 E     275     SWI_Addr:       DD      SWI_Handler?A
+0008002C 00000000 E     276     PAbt_Addr:      DD      PAbt_Handler?A
+00080030 00000000 E     277     DAbt_Addr:      DD      DAbt_Handler?A
+00080034 00000000       278                     DD      0                       
+00080038 00000000 E     279     IRQ_Addr:       DD      IRQ_Handler?A
+0008003C 00000000 E     280     FIQ_Addr:       DD      FIQ_Handler?A
+                        281     
+                        282     
+                        283     
+                        284     
+00080040                285     Reset_Handler:  
+                        286     
+                        287     
+                        288     
+                        289     IF (PLL_SETUP != 0)
+00080040 E59F0034       290                     LDR     R0, =MMR_BASE
+00080044 E3A01001       291                     MOV     R1, #0x01         
+00080048 E5801404       292                     STR     R1, [R0,#POWKEY1_OFFSET]          
+0008004C E3A01001       293                     MOV     R1, #PLLCFG_Val      
+00080050 E5801408       294                     STR     R1, [R0,#POWCON_OFFSET]    
+00080054 E3A010F4       295                     MOV     R1, #0xF4
+00080058 E580140C       296                     STR     R1, [R0,#POWKEY2_OFFSET]
+                        297     ENDIF   ; PLL_SETUP
+                        298     
+                        299     
+                        300     
+                        301     IF (GPIO_SETUP != 0)
+                                
+                                                ADR     R10, GPIO_CFG           
+                                                LDMIA   R10, {R0-R5}            
+                                                STMIA   R0, {R1-R5}             
+                                                B       GPIO_END
+                                
+                                GPIO_CFG:       DD      GPIOBASE
+                                                DD      GP0CON_Val
+                                                DD      GP1CON_Val
+                                                DD      GP2CON_Val
+                                                DD      GP3CON_Val
+                                                DD      GP4CON_Val
+                                GPIO_END:
+                                
+                                ENDIF   ; GPIO_SETUP
+                        317     
+                        318     
+                        319     
+                        320     IF (XM_SETUP != 0)
+                                
+                                                ADR     R10, XM_CFG             
+AA MACRO ASSEMBLER RSTARTUP                                                                 16/12/09 15:50:55 PAGE     6
+
+                                                LDMIA   R10, {R0-R9}            
+                                                STR     R1, [R0],#0x10          
+                                                STMIA   R0, {R2-R9}             
+                                                B       XM_END
+                                
+                                XM_CFG:         DD      XMBASE
+                                                DD      XMCFG_Val
+                                                DD      XM0CON_Val
+                                                DD      XM1CON_Val
+                                                DD      XM2CON_Val
+                                                DD      XM3CON_Val
+                                                DD      XM0PAR_Val
+                                                DD      XM1PAR_Val
+                                                DD      XM2PAR_Val
+                                                DD      XM3PAR_Val
+                                XM_END:
+                                
+                                ENDIF   ; XM_SETUP
+                        341     
+                        342     
+                        343     
+                        344     
+                        345     
+                        346     $if  (RAM_INTVEC)
+                                                ADR     R8, Vectors         ; Source
+                                                LDR     R9, =0x00010000     ; Destination
+                                                LDMIA   R8!, {R0-R7}        ; Load Vectors 
+                                                STMIA   R9!, {R0-R7}        ; Store Vectors 
+                                                LDMIA   R8!, {R0-R7}        ; Load Handler Addresses 
+                                                STMIA   R9!, {R0-R7}        ; Store Handler Addresses 
+                                                LDR     R0, =MMR_BASE
+                                                MOV     R1, #1     
+                                                STR     R1, [R0,#PREMAP_OFFSET]          
+                                                STR     R1, [R0,#REMAP_OFFSET]          
+                                $endif 
+                        358     
+                        359     
+                        360     
+0008005C E59F0034       361                     LDR     R0, =Top_Stack
+                        362     
+                        363     
+00080060 E321F0DB       364                     MSR     CPSR_c, #Mode_UND|I_Bit|F_Bit
+00080064 E1A0D000       365                     MOV     SP, R0
+00080068 E2400004       366                     SUB     R0, R0, #UND_Stack_Size
+                        367     
+                        368     
+0008006C E321F0D7       369                     MSR     CPSR_c, #Mode_ABT|I_Bit|F_Bit
+00080070 E1A0D000       370                     MOV     SP, R0
+00080074 E2400004       371                     SUB     R0, R0, #ABT_Stack_Size
+                        372     
+                        373     
+00080078 E321F0D1       374                     MSR     CPSR_c, #Mode_FIQ|I_Bit|F_Bit
+0008007C E1A0D000       375                     MOV     SP, R0
+00080080 E2400004       376                     SUB     R0, R0, #FIQ_Stack_Size
+                        377     
+                        378     
+00080084 E321F0D2       379                     MSR     CPSR_c, #Mode_IRQ|I_Bit|F_Bit
+00080088 E1A0D000       380                     MOV     SP, R0
+0008008C E2400080       381                     SUB     R0, R0, #IRQ_Stack_Size
+                        382     
+                        383     
+00080090 E321F0D3       384                     MSR     CPSR_c, #Mode_SVC|I_Bit|F_Bit
+00080094 E1A0D000       385                     MOV     SP, R0
+00080098 E2400004       386                     SUB     R0, R0, #SVC_Stack_Size
+                        387     
+                        388     
+AA MACRO ASSEMBLER RSTARTUP                                                                 16/12/09 15:50:55 PAGE     7
+
+0008009C E321F010       389                     MSR     CPSR_c, #Mode_USR
+000800A0 E1A0D000       390                     MOV     SP, R0
+                        391     
+                        392     
+000800A4 E59F0034       393                     LDR     R0,=?C?INIT
+000800A8 E3100001       394                     TST     R0,#1       ; Bit-0 set: main is Thumb
+000800AC E3AFE034       395                     LDREQ   LR,=exit?A  ; ARM Mode
+000800B0 E3AFE034       396                     LDRNE   LR,=exit?T  ; Thumb Mode
+000800B4 E12FFF10       397                     BX      R0
+                        398                     ENDP
+                        399     
+                        400     PUBLIC exit?A
+                        401     exit?A          PROC    CODE32
+000800B8 EAFFFFFE       402                     B       exit?A
+                        403                     ENDP
+                        404     
+                        405     PUBLIC exit?T
+                        406     exit?T          PROC    CODE16
+000800BC E7FE           407                     B       exit?T
+                        408                     ENDP
+                        409     
+                        410                     END
+AA MACRO ASSEMBLER RSTARTUP                                                                 16/12/09 15:50:55 PAGE     8
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E     ATTRIBUTES
+
+?C?INIT. . . . . .  C  ADDR  -------       EXT
+ABT_Stack_Size . .  -- ----  0004H     A   
+DAbt_Addr. . . . .  C  ADDR  080030H   R   SEG=STARTUPCODE
+DAbt_Handler?A . .  C  ADDR  -------       EXT
+FIQ_Addr . . . . .  C  ADDR  08003CH   R   SEG=STARTUPCODE
+FIQ_Handler?A. . .  C  ADDR  -------       EXT
+FIQ_Stack_Size . .  -- ----  0004H     A   
+F_Bit. . . . . . .  -- ----  0040H     A   
+GP0CON_Val . . . .  -- ----  0000H     A   
+GP1CON_Val . . . .  -- ----  0000H     A   
+GP2CON_Val . . . .  -- ----  0000H     A   
+GP3CON_Val . . . .  -- ----  0000H     A   
+GP4CON_Val . . . .  -- ----  0000H     A   
+GPIOBASE . . . . .  -- ----  FFFFF400H A   
+GPIO_SETUP . . . .  -- ----  0000H     A   
+IRQ_Addr . . . . .  C  ADDR  080038H   R   SEG=STARTUPCODE
+IRQ_Handler?A. . .  C  ADDR  -------       EXT
+IRQ_Stack_Size . .  -- ----  0080H     A   
+I_Bit. . . . . . .  -- ----  0080H     A   
+MMR_BASE . . . . .  -- ----  FFFF0000H A   
+Mode_ABT . . . . .  -- ----  0017H     A   
+Mode_FIQ . . . . .  -- ----  0011H     A   
+Mode_IRQ . . . . .  -- ----  0012H     A   
+Mode_SVC . . . . .  -- ----  0013H     A   
+Mode_SYS . . . . .  -- ----  001FH     A   
+Mode_UND . . . . .  -- ----  001BH     A   
+Mode_USR . . . . .  -- ----  0010H     A   
+PAbt_Addr. . . . .  C  ADDR  08002CH   R   SEG=STARTUPCODE
+PAbt_Handler?A . .  C  ADDR  -------       EXT
+PLLCFG_Val . . . .  -- ----  0001H     A   
+PLL_SETUP. . . . .  -- ----  0001H     A   
+POWCON_OFFSET. . .  -- ----  0408H     A   
+POWKEY1_OFFSET . .  -- ----  0404H     A   
+POWKEY2_OFFSET . .  -- ----  040CH     A   
+PREMAP_OFFSET. . .  -- ----  0224H     A   
+REMAP_OFFSET . . .  -- ----  0220H     A   
+Reset_Addr . . . .  C  ADDR  080020H   R   SEG=STARTUPCODE
+Reset_Handler. . .  C  ADDR  080040H   R   SEG=STARTUPCODE
+STACK. . . . . . .  D  SEG   0490H         REL=UNIT, ALN=BYTE
+STARTUPCODE. . . .  C  SEG   0800BEH       REL=ABS, ALN=BYTE
+SVC_Stack_Size . .  -- ----  0004H     A   
+SWI_Addr . . . . .  C  ADDR  080028H   R   SEG=STARTUPCODE
+SWI_Handler?A. . .  C  ADDR  -------       EXT
+Top_Stack. . . . .  D  ADDR  0490H     R   SEG=STACK
+UND_Stack_Size . .  -- ----  0004H     A   
+USR_Stack_Size . .  -- ----  0400H     A   
+Undef_Addr . . . .  C  ADDR  080024H   R   SEG=STARTUPCODE
+Undef_Handler?A. .  C  ADDR  -------       EXT
+Vectors. . . . . .  C  ADDR  080000H   R   SEG=STARTUPCODE
+XM0CON_Val . . . .  -- ----  0000H     A   
+XM0PAR_Val . . . .  -- ----  70FFH     A   
+XM1CON_Val . . . .  -- ----  0000H     A   
+XM1PAR_Val . . . .  -- ----  70FFH     A   
+XM2CON_Val . . . .  -- ----  0000H     A   
+XM2PAR_Val . . . .  -- ----  70FFH     A   
+XM3CON_Val . . . .  -- ----  0000H     A   
+XM3PAR_Val . . . .  -- ----  70FFH     A   
+XMBASE . . . . . .  -- ----  FFFFF000H A   
+XMCFG_Val. . . . .  -- ----  0001H     A   
+XM_SETUP . . . . .  -- ----  0000H     A   
+AA MACRO ASSEMBLER RSTARTUP                                                                 16/12/09 15:50:55 PAGE     9
+
+__startup. . . . .  C  ADDR  080000H   R   SEG=STARTUPCODE
+exit?A . . . . . .  C  ADDR  0800B8H   R   SEG=STARTUPCODE
+exit?T . . . . . .  C  ADDR  0800BCH   R   SEG=STARTUPCODE
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S).

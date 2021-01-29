@@ -1,0 +1,102 @@
+LARM LINKER/LOCATER V2.40c                                                              12/16/2009  15:50:56  PAGE 1
+
+
+LARM LINKER/LOCATER V2.40c, INVOKED BY:
+C:\KEIL\ARM\BIN\LA.EXE startup.obj, MAIN.obj, SPI.obj TO SPI_TEST CASE CLASSES (DATA (0X10000-0X11FFF), CODE (0X80000-0X
+>> 8F7FF), CONST (0X80000-0X8F7FF))
+
+
+CPU MODE: LITTLE ENDIAN
+
+
+INPUT MODULES INCLUDED:
+  startup.obj (STARTUP)
+         COMMENT TYPE 0: AA V2.40a
+  MAIN.obj (MAIN)
+         COMMENT TYPE 0: CARM V2.40c
+  SPI.obj (SPI)
+         COMMENT TYPE 0: CARM V2.40c
+  C:\KEIL\ARM\LIB\CAL.LIB (FIQ)
+         COMMENT TYPE 0: AA V2.40a
+  C:\KEIL\ARM\LIB\CAL.LIB (IRQ)
+         COMMENT TYPE 0: AA V2.40a
+  C:\KEIL\ARM\LIB\CAL.LIB (DABT)
+         COMMENT TYPE 0: AA V2.40a
+  C:\KEIL\ARM\LIB\CAL.LIB (PABT)
+         COMMENT TYPE 0: AA V2.40a
+  C:\KEIL\ARM\LIB\CAL.LIB (SWI)
+         COMMENT TYPE 0: AA V2.40a
+  C:\KEIL\ARM\LIB\CAL.LIB (UNDEF)
+         COMMENT TYPE 0: AA V2.40a
+
+
+ACTIVE MEMORY CLASSES OF MODULE:  SPI_TEST (STARTUP)
+
+BASE       START      END        USED       MEMORY CLASS
+========================================================
+00000000H  00010000H  00011FFFH  00000494H  DATA
+00000000H  00080000H  0008F7FFH  000003D0H  CODE
+00000000H  00080000H  0008F7FFH  00000018H  CONST
+
+
+
+MEMORY MAP OF MODULE:  SPI_TEST (STARTUP)
+
+START      STOP       LENGTH    ALIGN  RELOC  MEMORY CLASS   SEGMENT NAME
+=========================================================================
+00010000H  0001048FH  00000490H     4  UNIT   DATA           STACK
+00010490H  00010493H  00000004H     4  UNIT   DATA           ?DT0?MAIN
+00010494H  0007FFFFH  0006FB6CH   ---  ---    **GAP**
+00080000H  000800D3H  000000D4H     4  AT..   CODE           STARTUPCODE
+000800D4H  000800E3H  00000010H     4  UNIT   CONST          ?C_CLRSEG
+000800E4H  000800EBH  00000008H     4  UNIT   CONST          ?C_INITSEG
+000800ECH  0008010BH  00000020H     4  UNIT   CODE           ?PR?putchar?T?MAIN
+0008010CH  000801ABH  000000A0H     4  UNIT   CODE           ?PR?ADuC7026_Initiate?T?MAIN
+000801ACH  00080207H  0000005CH     4  UNIT   CODE           ?PR?main?MAIN
+00080208H  00080213H  0000000CH     4  UNIT   CODE           ?PR?delay?T?SPI
+00080214H  000803CFH  000001BCH     4  UNIT   CODE           ?PR?ReadFromADXL345ViaSpi?T?SPI
+000803D0H  000803D3H  00000004H     4  UNIT   CODE           ?C?FIQ
+000803D4H  000803D7H  00000004H     4  UNIT   CODE           ?C?IRQ
+000803D8H  000803DBH  00000004H     4  UNIT   CODE           ?C?DABT
+000803DCH  000803DFH  00000004H     4  UNIT   CODE           ?C?PABT
+000803E0H  000803E7H  00000008H     4  UNIT   CODE           ?C?UNDEF
+
+
+
+REMOVED FUNCTIONS OF MODULE:  SPI_TEST (STARTUP)
+
+      ATTRIBUTE  FUNCTION NAME
+      ========================
+LARM LINKER/LOCATER V2.40c                                                            12/16/2009  15:50:56  PAGE 2
+
+
+       unused    WriteToADXL345ViaSpi?T
+
+
+
+PUBLIC SYMBOLS OF MODULE:  SPI_TEST (STARTUP)
+
+      VALUE      CLASS    TYPE      PUBLIC SYMBOL NAME
+      ================================================
+      000800D4H  ---      ---       ?C?CLRTAB
+      000801ACH  ---      ---       ?C?INIT
+      000800E4H  ---      ---       ?C?INITTAB
+      0008010CH  CODE     ---       ADuC7026_Initiate?T
+      000803D8H  CODE     ---       DAbt_Handler?A
+      000803D0H  CODE     ---       FIQ_Handler?A
+      000803D4H  CODE     ---       IRQ_Handler?A
+      000803DCH  CODE     ---       PAbt_Handler?A
+      00080214H  CODE     ---       ReadFromADXL345ViaSpi?T
+      000803E0H  CODE     ---       SWI_Handler?A
+      000803E4H  CODE     ---       Undef_Handler?A
+      00000000H  CODE     ---       WriteToADXL345ViaSpi?T
+      00080000H  CODE     ---       __startup
+      00010490H  DATA     ---       buf
+      00080208H  CODE     ---       delay?T
+      000800B8H  CODE     ---       exit?A
+      000800BCH  CODE     ---       exit?T
+      000801E0H  CODE     ---       main
+      000800ECH  CODE     ---       putchar?T
+
+Program Size: data=1172 const=24 code=976
+LARM RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,222 @@
+ARM COMPILER V2.40c,  CONFIG                                                               24/09/09  17:17:31  PAGE 1   
+
+
+ARM COMPILER V2.40c, COMPILATION OF MODULE CONFIG
+OBJECT MODULE PLACED IN CONFIG.OBJ
+COMPILER INVOKED BY: C:\Keil\ARM\BIN\CA.exe CONFIG.C THUMB BROWSE DEBUG TABS(4) 
+
+stmt  level    source
+
+    1          // config.c
+    2          #include <ADuC7026.h>
+    3          //#include "common.h"
+    4          
+    5          void InitCPU(void){
+    6   1      
+    7   1      //  PLL SETTING  //
+    8   1          POWKEY1 = 0x01;             //Start PLL setting
+    9   1          POWCON = 0x00;              //Set PLL active mode with CD = 0
+   10   1          POWKEY2 = 0xF4;             //Finish PLL setting
+   11   1      
+   12   1      //  GPIO SETTING  //
+   13   1          
+   14   1          GP0CON = 0x00000220;        //Look for GPIO configuration file for detail setting
+   15   1          GP1CON = 0x02222211;        //P1.7 as GPIO
+   16   1          GP2CON = 0x00022220;        //Configure External RAM
+   17   1          GP3CON = 0x22222222;
+   18   1          GP4CON = 0x22222222;
+   19   1      
+   20   1          GP0DAT = 0xCE000000;        //P0.0 P0.4 P0.5 input
+   21   1          GP1DAT = 0x80800000;        //P1.7(CS3) as output and set output  
+   22   1          GP2DAT = 0xE1E10000;        //Always set P2.0, P2.5/6/7(CS1/2/4) output
+   23   1          GP3DAT = 0x00000000;
+   24   1          GP4DAT = 0x00000000;
+   25   1      
+   26   1      //  UART BAURD RATE SETTING  //
+   27   1          COMCON0 = 0x80;             // start setting up UART at 115200bps,  Setting DLAB
+   28   1          COMDIV0 = 0x0B;             // 115200
+   29   1          COMDIV1 = 0x00;
+   30   1          COMCON0 = 0x0F;             // clearing DLAB, Odd Parity, 8 bits, 2 stop bits
+   31   1          COMDIV2 = 0x883E;           // 115200   
+   32   1      
+   33   1      //  ADC / DAC SETTING  //
+   34   1          DAC0CON = 0x13;             // DAC configuration
+   35   1          DAC1CON = 0x13;             // DAC configuration
+   36   1          DAC2CON = 0x13;             // DAC configuration
+   37   1          DAC0DAT = 0x00000000;       // DAC output
+   38   1          DAC1DAT = 0x00000000;       // DAC output
+   39   1          DAC2DAT = 0x00000000;       // DAC output
+   40   1      
+   41   1      // External Memory Config
+   42   1          XMCFG = 0x1;
+   43   1          XM0CON = 0x3;
+   44   1          XM0PAR = 0x70FF;
+   45   1      
+   46   1      
+   47   1      }
+   48          
+   49          void InitSPI(void){             // SPI-Master setup 
+   50   1      
+   51   1      //  SPIDIV = 0x28;              //SPI speed in MHz = 0.5
+   52   1      //  SPIDIV = 0x13;              //SPI speed in MHz = 1      
+   53   1          SPIDIV = 0x05;              //SPI speed in MHz = 3.4    
+   54   1      //  SPIDIV = 0x03;              //SPI speed in MHz = 5  
+   55   1      //  SPIDIV = 0x01;              //SPI speed in MHz = 10                         
+   56   1          SPICON = 0x104F;            // enable SPI master in continuous transfer mode 
+   57   1      
+   58   1          GP2SET = 0xE00000;          //CS1 = High CS2 = High CS4 = High
+   59   1          GP1SET = 0x800000;          //CS3 = High
+ARM COMPILER V2.40c,  CONFIG                                                               24/09/09  17:17:31  PAGE 2   
+
+   60   1      }
+ARM COMPILER V2.40c,  CONFIG                                                               24/09/09  17:17:31  PAGE 3   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+
+*** PUBLICS:
+ PUBLIC         InitCPU?T
+ PUBLIC         InitSPI?T
+
+
+
+*** CODE SEGMENT '?PR?InitCPU?T?CONFIG':
+    8:     POWKEY1 = 0x01;             //Start PLL setting
+ 00000000  2101      MOV         R1,#0x1
+ 00000002  4800      LDR         R0,=0xFFFF0404
+ 00000004  6001      STR         R1,[R0,#0x0]
+    9:     POWCON = 0x00;              //Set PLL active mode with CD = 0
+ 00000006  2200      MOV         R2,#0x0
+ 00000008  4800      LDR         R0,=0xFFFF0408
+ 0000000A  6002      STR         R2,[R0,#0x0]
+   10:     POWKEY2 = 0xF4;             //Finish PLL setting
+ 0000000C  23F4      MOV         R3,#0xF4
+ 0000000E  4800      LDR         R0,=0xFFFF040C
+ 00000010  6003      STR         R3,[R0,#0x0]
+   14:     GP0CON = 0x00000220;        //Look for GPIO configuration file for detail setting
+ 00000012  4B88      LDR         R3,=0x220
+ 00000014  4800      LDR         R0,=0xFFFFF400
+ 00000016  6003      STR         R3,[R0,#0x0]
+   15:     GP1CON = 0x02222211;        //P1.7 as GPIO
+ 00000018  4800      LDR         R3,=0x2222211
+ 0000001A  4800      LDR         R0,=0xFFFFF404
+ 0000001C  6003      STR         R3,[R0,#0x0]
+   16:     GP2CON = 0x00022220;        //Configure External RAM
+ 0000001E  4800      LDR         R3,=0x22220
+ 00000020  4800      LDR         R0,=0xFFFFF408
+ 00000022  6003      STR         R3,[R0,#0x0]
+   17:     GP3CON = 0x22222222;
+ 00000024  4800      LDR         R3,=0x22222222
+ 00000026  4800      LDR         R0,=0xFFFFF40C
+ 00000028  6003      STR         R3,[R0,#0x0]
+   18:     GP4CON = 0x22222222;
+ 0000002A  4800      LDR         R0,=0xFFFFF410
+ 0000002C  6003      STR         R3,[R0,#0x0]
+   20:     GP0DAT = 0xCE000000;        //P0.0 P0.4 P0.5 input
+ 0000002E  4800      LDR         R3,=0xCE000000
+ 00000030  4800      LDR         R0,=0xFFFFF420
+ 00000032  6003      STR         R3,[R0,#0x0]
+   21:     GP1DAT = 0x80800000;        //P1.7(CS3) as output and set output  
+ 00000034  4800      LDR         R3,=0x80800000
+ 00000036  4800      LDR         R0,=0xFFFFF430
+ 00000038  6003      STR         R3,[R0,#0x0]
+   22:     GP2DAT = 0xE1E10000;        //Always set P2.0, P2.5/6/7(CS1/2/4) output
+ 0000003A  4800      LDR         R3,=0xE1E10000
+ 0000003C  4800      LDR         R0,=0xFFFFF440
+ 0000003E  6003      STR         R3,[R0,#0x0]
+   23:     GP3DAT = 0x00000000;
+ 00000040  4800      LDR         R0,=0xFFFFF450
+ 00000042  6002      STR         R2,[R0,#0x0]
+   24:     GP4DAT = 0x00000000;
+ 00000044  4800      LDR         R0,=0xFFFFF460
+ 00000046  6002      STR         R2,[R0,#0x0]
+   27:        COMCON0 = 0x80;              // start setting up UART at 115200bps,  Setting DLAB
+ 00000048  2380      MOV         R3,#0x80
+ 0000004A  4800      LDR         R0,=0xFFFF070C
+ 0000004C  6003      STR         R3,[R0,#0x0]
+   28:     COMDIV0 = 0x0B;             // 115200
+ 0000004E  230B      MOV         R3,#0xB
+ 00000050  4800      LDR         R0,=0xFFFF0700
+ 00000052  6003      STR         R3,[R0,#0x0]
+   29:     COMDIV1 = 0x00;
+ARM COMPILER V2.40c,  CONFIG                                                               24/09/09  17:17:31  PAGE 4   
+
+ 00000054  4800      LDR         R0,=0xFFFF0704
+ 00000056  6002      STR         R2,[R0,#0x0]
+   30:        COMCON0 = 0x0F;              // clearing DLAB, Odd Parity, 8 bits, 2 stop bits
+ 00000058  230F      MOV         R3,#0xF
+ 0000005A  4800      LDR         R0,=0xFFFF070C
+ 0000005C  6003      STR         R3,[R0,#0x0]
+   31:     COMDIV2 = 0x883E;           // 115200   
+ 0000005E  4800      LDR         R3,=0x883E
+ 00000060  4800      LDR         R0,=0xFFFF072C
+ 00000062  6003      STR         R3,[R0,#0x0]
+   34:     DAC0CON = 0x13;             // DAC configuration
+ 00000064  2313      MOV         R3,#0x13
+ 00000066  4800      LDR         R0,=0xFFFF0600
+ 00000068  6003      STR         R3,[R0,#0x0]
+   35:     DAC1CON = 0x13;             // DAC configuration
+ 0000006A  4800      LDR         R0,=0xFFFF0608
+ 0000006C  6003      STR         R3,[R0,#0x0]
+   36:     DAC2CON = 0x13;             // DAC configuration
+ 0000006E  4800      LDR         R0,=0xFFFF0610
+ 00000070  6003      STR         R3,[R0,#0x0]
+   37:     DAC0DAT = 0x00000000;       // DAC output
+ 00000072  4800      LDR         R0,=0xFFFF0604
+ 00000074  6002      STR         R2,[R0,#0x0]
+   38:     DAC1DAT = 0x00000000;       // DAC output
+ 00000076  4800      LDR         R0,=0xFFFF060C
+ 00000078  6002      STR         R2,[R0,#0x0]
+   39:     DAC2DAT = 0x00000000;       // DAC output
+ 0000007A  4800      LDR         R0,=0xFFFF0614
+ 0000007C  6002      STR         R2,[R0,#0x0]
+   42:     XMCFG = 0x1;
+ 0000007E  4800      LDR         R0,=0xFFFFF000
+ 00000080  6001      STR         R1,[R0,#0x0]
+   43:     XM0CON = 0x3;
+ 00000082  2103      MOV         R1,#0x3
+ 00000084  4800      LDR         R0,=0xFFFFF010
+ 00000086  6001      STR         R1,[R0,#0x0]
+   44:     XM0PAR = 0x70FF;
+ 00000088  4800      LDR         R1,=0x70FF
+ 0000008A  4800      LDR         R0,=0xFFFFF020
+ 0000008C  6001      STR         R1,[R0,#0x0]
+   47: }
+ 0000008E  4770      BX          R14
+ 00000090          ENDP ; 'InitCPU?T'
+
+
+*** CODE SEGMENT '?PR?InitSPI?T?CONFIG':
+   53:     SPIDIV = 0x05;              //SPI speed in MHz = 3.4    
+ 00000000  2105      MOV         R1,#0x5
+ 00000002  4800      LDR         R0,=0xFFFF0A0C
+ 00000004  6001      STR         R1,[R0,#0x0]
+   56:     SPICON = 0x104F;            // enable SPI master in continuous transfer mode 
+ 00000006  4800      LDR         R1,=0x104F
+ 00000008  4800      LDR         R0,=0xFFFF0A10
+ 0000000A  6001      STR         R1,[R0,#0x0]
+   58:     GP2SET = 0xE00000;          //CS1 = High CS2 = High CS4 = High
+ 0000000C  4800      LDR         R1,=0xE00000
+ 0000000E  4800      LDR         R0,=0xFFFFF444
+ 00000010  6001      STR         R1,[R0,#0x0]
+   59:     GP1SET = 0x800000;          //CS3 = High
+ 00000012  4800      LDR         R1,=0x800000
+ 00000014  4800      LDR         R0,=0xFFFFF434
+ 00000016  6001      STR         R1,[R0,#0x0]
+ 00000018  4770      BX          R14
+ 0000001A          ENDP ; 'InitSPI?T'
+
+
+
+Module Information          Static
+----------------------------------
+  code size            =    ------
+ARM COMPILER V2.40c,  CONFIG                                                               24/09/09  17:17:31  PAGE 5   
+
+  data size            =    ------
+  const size           =    ------
+End of Module Information.
+
+
+ARM COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

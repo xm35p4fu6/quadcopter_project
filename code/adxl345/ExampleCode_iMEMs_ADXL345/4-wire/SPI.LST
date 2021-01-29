@@ -1,0 +1,841 @@
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 1   
+
+
+ARM COMPILER V2.40c, COMPILATION OF MODULE SPI
+OBJECT MODULE PLACED IN SPI.OBJ
+COMPILER INVOKED BY: C:\Keil\ARM\BIN\CA.exe SPI.C THUMB BROWSE DEBUG TABS(4) 
+
+stmt  level    source
+
+    1          /***************************************************************************
+    2          
+    3           Author        : Neil Zhao - CAST
+    4          
+    5           Date          : Sep 25th, 2009
+    6          
+    7           File          : SPI.c
+    8          
+    9           Hardware      : ADuC7026 and ADXL345
+   10          
+   11           Description   : Use the GPIO to simulate the 4-Wire SPI Interface of ADXL345
+   12          
+   13                  
+   14          ***************************************************************************/
+   15          
+   16          #include<ADuC7026.h>    
+   17          #include<Common.h>  
+   18          
+   19          void delay (signed int length)
+   20          {
+   21   1          while (length >0)
+   22   1              length--;
+   23   1      }
+   24          
+   25          //---------------------------------
+   26          //WriteToADXL345ViaSpi();
+   27          //---------------------------------
+   28          //Function that writes to the ADXL345 via the SPI port. It sends first the control
+   29          //word that includes the start address and then the data to write.
+   30          //--------------------------------------------------------------------------------
+   31          void WriteToADXL345ViaSpi(unsigned char RegisterAddress, unsigned char NumberofRegisters, unsigned char *
+             -RegisterData)
+   32          {
+   33   1          unsigned    char    ControlValue = 0;
+   34   1          unsigned    char    ValueToWrite = 0;
+   35   1          signed      char    RegisterIndex = 0;
+   36   1          unsigned    char    i = 0;
+   37   1      
+   38   1          //Create the 8-bit header
+   39   1          ControlValue = RegisterAddress;
+   40   1      
+   41   1      //  SET_SCL();
+   42   1      //  delay(1);   
+   43   1          SET_CS();
+   44   1          SET_SCL();
+   45   1          delay(3);
+   46   1          CLR_CS();    //bring CS low
+   47   1          delay(3);
+   48   1      
+   49   1          CLR_SCL();
+   50   1          CLR_SDO();   //set WRITE bit
+   51   1          delay(3);
+   52   1          SET_SCL();
+   53   1          delay(3);
+   54   1          ControlValue <<= 1;
+   55   1      
+   56   1          CLR_SCL();
+   57   1          SET_SDO();  //set MB bit
+   58   1          delay(3);
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 2   
+
+   59   1          SET_SCL();
+   60   1          delay(3);
+   61   1          ControlValue <<= 1;
+   62   1      
+   63   1          //Write out the control word
+   64   1          for(i=0; i<6; i++)
+   65   1          {
+   66   2              CLR_SCL();
+   67   2              if(0x80 == (ControlValue & 0x80))
+   68   2              {
+   69   3                  SET_SDO();    //Send one to SDO pin
+   70   3              }
+   71   2              else
+   72   2              {
+   73   3                  CLR_SDO();    //Send zero to SDO pin
+   74   3              }
+   75   2              delay(3);
+   76   2              SET_SCL();
+   77   2              delay(3);
+   78   2              ControlValue <<= 1; //Rotate data
+   79   2          }
+   80   1      
+   81   1          //And then the data
+   82   1          for (RegisterIndex=NumberofRegisters; RegisterIndex>0; RegisterIndex--)
+   83   1          {
+   84   2              ValueToWrite = *(RegisterData + RegisterIndex - 1);
+   85   2              for (i=0; i<8; i++)
+   86   2              {
+   87   3                  CLR_SCL();
+   88   3                  if(0x80 == (ValueToWrite & 0x80))
+   89   3                  {
+   90   4                      SET_SDO();    //Send one to SDO pin
+   91   4                  }
+   92   3                  else
+   93   3                  {
+   94   4                      CLR_SDO();    //Send zero to SDO pin
+   95   4                  }
+   96   3                  delay(3);
+   97   3                  SET_SCL();
+   98   3                  delay(3);
+   99   3                  ValueToWrite <<= 1; //Rotate data
+  100   3              }
+  101   2          }
+  102   1          SET_CS();   //bring CS high again
+  103   1      }
+  104          
+  105          //---------------------------------
+  106          //ReadFromADXL345ViaSpi();
+  107          //---------------------------------
+  108          //Function that reads from the ADXL345 via the SPI port. It first send the control word
+  109          //that includes the start address and then 8 clocks for each register to read.
+  110          //--------------------------------------------------------------------------------
+  111          void ReadFromADXL345ViaSpi(unsigned char RegisterAddress, unsigned char NumberofRegisters, unsigned char 
+             -*RegisterData)
+  112          {
+  113   1          unsigned    char    ControlValue = 0;
+  114   1          signed      char    RegisterIndex = 0;
+  115   1          unsigned    char    ReceiveData = 0;
+  116   1          unsigned    char    i = 0;
+  117   1          unsigned    int     iTemp = 0;
+  118   1      
+  119   1          //Create the 8-bit header
+  120   1          ControlValue = RegisterAddress;
+  121   1      
+  122   1      //  SET_SCL();
+  123   1      //  delay(1);   
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 3   
+
+  124   1          SET_CS();
+  125   1          SET_SCL();
+  126   1          delay(3);
+  127   1          CLR_CS();    //bring CS low
+  128   1          delay(3);
+  129   1      
+  130   1          CLR_SCL();
+  131   1          SET_SDO();   //set READ bit
+  132   1          delay(3);
+  133   1          SET_SCL();
+  134   1          delay(3);
+  135   1          ControlValue <<= 1;
+  136   1      
+  137   1          CLR_SCL();
+  138   1          SET_SDO();  //set MB bit
+  139   1          delay(3);
+  140   1          SET_SCL();
+  141   1          delay(3);
+  142   1          ControlValue <<= 1;
+  143   1      
+  144   1          //Write out the control word
+  145   1          for(i=0; i<6; i++)
+  146   1          {
+  147   2              CLR_SCL();
+  148   2              if(0x80 == (ControlValue & 0x80))
+  149   2              {
+  150   3                  SET_SDO();    //Send one to SDO pin
+  151   3              }
+  152   2              else
+  153   2              {
+  154   3                  CLR_SDO();    //Send zero to SDO pin
+  155   3              }
+  156   2              delay(3);
+  157   2              SET_SCL();
+  158   2              delay(3);
+  159   2              ControlValue <<= 1; //Rotate data
+  160   2          }
+  161   1      
+  162   1          //Read data in
+  163   1          for (RegisterIndex=NumberofRegisters; RegisterIndex>0; RegisterIndex--)
+  164   1          {
+  165   2              for(i=0; i<8; i++)
+  166   2              {
+  167   3                  CLR_SCL();
+  168   3                  ReceiveData <<= 1;      //Rotate data
+  169   3                  delay(3);
+  170   3                  SET_SCL();
+  171   3                  iTemp = GP1DAT;         //Read SDI of ADXL345
+  172   3                  if(0x00000020 == (iTemp & 0x00000020))             //SDI  P1.5
+  173   3                  {
+  174   4                      ReceiveData |= 1;   
+  175   4                  }
+  176   3                  delay(2);
+  177   3              }
+  178   2              *(RegisterData + RegisterIndex - 1) = ReceiveData;
+  179   2          }
+  180   1          SET_CS();   //bring CS high again
+  181   1      } 
+  182          
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 4   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+
+*** PUBLICS:
+ PUBLIC         delay?T
+ PUBLIC         WriteToADXL345ViaSpi?T
+ PUBLIC         ReadFromADXL345ViaSpi?T
+
+
+
+*** CODE SEGMENT '?PR?delay?T?SPI':
+   19: void delay (signed int length)
+ 00000000  ---- Variable 'length' assigned to Register 'R0' ----
+   21:     while (length >0)
+ 00000000  E000      B           L_1  ; T=0x00000004
+ 00000002          L_3:
+ 00000002  3801      SUB         R0,#0x1
+ 00000004          L_1:
+ 00000004  1C01      MOV         R1,R0 ; length
+ 00000006  2900      CMP         R1,#0x0 ; length
+ 00000008  DCFB      BGT         L_3  ; T=0x00000002
+   23: }
+ 0000000A  4770      BX          R14
+ 0000000C          ENDP ; 'delay?T'
+
+
+*** CODE SEGMENT '?PR?WriteToADXL345ViaSpi?T?SPI':
+   31: void WriteToADXL345ViaSpi(unsigned char RegisterAddress, unsigned char NumberofRegisters, unsigned char *Register
+             -Data)
+ 00000000  B570      PUSH        {R4-R6,LR}
+ 00000002  1C15      MOV         R5,R2 ; RegisterData
+ 00000004  ---- Variable 'RegisterData' assigned to Register 'R5' ----
+ 00000004  1C0A      MOV         R2,R1 ; NumberofRegisters
+ 00000006  ---- Variable 'NumberofRegisters' assigned to Register 'R2' ----
+ 00000006  ---- Variable 'RegisterAddress' assigned to Register 'R0' ----
+ 00000006  B081      SUB         R13,#0x4
+   32: {
+ 00000008            ; SCOPE-START
+   33:     unsigned    char    ControlValue = 0;
+ 00000008  2300      MOV         R3,#0x0
+ 0000000A  1C1E      MOV         R6,R3 ; ControlValue
+ 0000000C  ---- Variable 'ControlValue' assigned to Register 'R6' ----
+   34:     unsigned    char    ValueToWrite = 0;
+ 0000000C  A900      ADD         R1,R13,#0x0
+ 0000000E  700B      STRB        R3,[R1,#0x0] ; ValueToWrite
+   35:     signed      char    RegisterIndex = 0;
+ 00000010  2400      MOV         R4,#0x0
+ 00000012  ---- Variable 'RegisterIndex' assigned to Register 'R4' ----
+   36:     unsigned    char    i = 0;
+ 00000012  ---- Variable 'i' assigned to Register 'R3' ----
+   39:     ControlValue = RegisterAddress;
+ 00000012  1C06      MOV         R6,R0 ; RegisterAddress
+   43:     SET_CS();
+ 00000014  4800      LDR         R0,=0xFFFFF440
+ 00000016  6801      LDR         R1,[R0,#0x0]
+ 00000018  4800      LDR         R0,=0x800000
+ 0000001A  4301      ORR         R1,R0
+ 0000001C  4800      LDR         R0,=0xFFFFF440
+ 0000001E  6001      STR         R1,[R0,#0x0]
+   44:     SET_SCL();
+ 00000020  4800      LDR         R0,=0xFFFFF430
+ 00000022  6801      LDR         R1,[R0,#0x0]
+ 00000024  4800      LDR         R0,=0x100000
+ 00000026  4301      ORR         R1,R0
+ 00000028  4800      LDR         R0,=0xFFFFF430
+ 0000002A  6001      STR         R1,[R0,#0x0]
+   45:     delay(3);
+ 0000002C  2003      MOV         R0,#0x3
+ 0000002E  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000030  FFE7      BL          delay?T  ; T=0x0001  (2)
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 5   
+
+   46:     CLR_CS();    //bring CS low
+ 00000032  4800      LDR         R0,=0xFFFFF440
+ 00000034  6801      LDR         R1,[R0,#0x0]
+ 00000036  4800      LDR         R0,=0x800000
+ 00000038  4381      BIC         R1,R0
+ 0000003A  4800      LDR         R0,=0xFFFFF440
+ 0000003C  6001      STR         R1,[R0,#0x0]
+   47:     delay(3);
+ 0000003E  2003      MOV         R0,#0x3
+ 00000040  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000042  FFDE      BL          delay?T  ; T=0x0001  (2)
+   49:     CLR_SCL();
+ 00000044  4800      LDR         R0,=0xFFFFF430
+ 00000046  6801      LDR         R1,[R0,#0x0]
+ 00000048  4800      LDR         R0,=0x100000
+ 0000004A  4381      BIC         R1,R0
+ 0000004C  4800      LDR         R0,=0xFFFFF430
+ 0000004E  6001      STR         R1,[R0,#0x0]
+   50:     CLR_SDO();   //set WRITE bit
+ 00000050  4800      LDR         R0,=0xFFFFF430
+ 00000052  6801      LDR         R1,[R0,#0x0]
+ 00000054  4800      LDR         R0,=0x400000
+ 00000056  4381      BIC         R1,R0
+ 00000058  4800      LDR         R0,=0xFFFFF430
+ 0000005A  6001      STR         R1,[R0,#0x0]
+   51:     delay(3);
+ 0000005C  2003      MOV         R0,#0x3
+ 0000005E  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000060  FFCF      BL          delay?T  ; T=0x0001  (2)
+   52:     SET_SCL();
+ 00000062  4800      LDR         R0,=0xFFFFF430
+ 00000064  6801      LDR         R1,[R0,#0x0]
+ 00000066  4800      LDR         R0,=0x100000
+ 00000068  4301      ORR         R1,R0
+ 0000006A  4800      LDR         R0,=0xFFFFF430
+ 0000006C  6001      STR         R1,[R0,#0x0]
+   53:     delay(3);
+ 0000006E  2003      MOV         R0,#0x3
+ 00000070  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000072  FFC6      BL          delay?T  ; T=0x0001  (2)
+   54:     ControlValue <<= 1;
+ 00000074  0076      LSL         R6,R6,#0x1 ; ControlValue
+ 00000076  0636      LSL         R6,R6,#0x18
+ 00000078  0E36      LSR         R6,R6,#0x18
+   56:     CLR_SCL();
+ 0000007A  4800      LDR         R0,=0xFFFFF430
+ 0000007C  6801      LDR         R1,[R0,#0x0]
+ 0000007E  4800      LDR         R0,=0x100000
+ 00000080  4381      BIC         R1,R0
+ 00000082  4800      LDR         R0,=0xFFFFF430
+ 00000084  6001      STR         R1,[R0,#0x0]
+   57:     SET_SDO();  //set MB bit
+ 00000086  4800      LDR         R0,=0xFFFFF430
+ 00000088  6801      LDR         R1,[R0,#0x0]
+ 0000008A  4800      LDR         R0,=0x400000
+ 0000008C  4301      ORR         R1,R0
+ 0000008E  4800      LDR         R0,=0xFFFFF430
+ 00000090  6001      STR         R1,[R0,#0x0]
+   58:     delay(3);
+ 00000092  2003      MOV         R0,#0x3
+ 00000094  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000096  FFB4      BL          delay?T  ; T=0x0001  (2)
+   59:     SET_SCL();
+ 00000098  4800      LDR         R0,=0xFFFFF430
+ 0000009A  6801      LDR         R1,[R0,#0x0]
+ 0000009C  4800      LDR         R0,=0x100000
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 6   
+
+ 0000009E  4301      ORR         R1,R0
+ 000000A0  4800      LDR         R0,=0xFFFFF430
+ 000000A2  6001      STR         R1,[R0,#0x0]
+   60:     delay(3);
+ 000000A4  2003      MOV         R0,#0x3
+ 000000A6  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 000000A8  FFAB      BL          delay?T  ; T=0x0001  (2)
+   61:     ControlValue <<= 1;
+ 000000AA  0076      LSL         R6,R6,#0x1 ; ControlValue
+ 000000AC  0636      LSL         R6,R6,#0x18
+ 000000AE  0E36      LSR         R6,R6,#0x18
+   64:     for(i=0; i<6; i++)
+ 000000B0  2300      MOV         R3,#0x0
+ 000000B2  E02A      B           L_7  ; T=0x0000010A
+ 000000B4          L_8:
+   66:         CLR_SCL();
+ 000000B4  4800      LDR         R0,=0xFFFFF430
+ 000000B6  6801      LDR         R1,[R0,#0x0]
+ 000000B8  4800      LDR         R0,=0x100000
+ 000000BA  4381      BIC         R1,R0
+ 000000BC  4800      LDR         R0,=0xFFFFF430
+ 000000BE  6001      STR         R1,[R0,#0x0]
+   67:         if(0x80 == (ControlValue & 0x80))
+ 000000C0  1C30      MOV         R0,R6 ; ControlValue
+ 000000C2  0600      LSL         R0,R0,#0x18 ; ControlValue
+ 000000C4  0E00      LSR         R0,R0,#0x18
+ 000000C6  2180      MOV         R1,#0x80
+ 000000C8  4208      TST         R0,R1
+ 000000CA  D006      BEQ         L_10  ; T=0x000000DA
+   69:             SET_SDO();    //Send one to SDO pin
+ 000000CC  4800      LDR         R0,=0xFFFFF430
+ 000000CE  6801      LDR         R1,[R0,#0x0]
+ 000000D0  4800      LDR         R0,=0x400000
+ 000000D2  4301      ORR         R1,R0
+ 000000D4  4800      LDR         R0,=0xFFFFF430
+ 000000D6  6001      STR         R1,[R0,#0x0]
+   70:         }
+ 000000D8  E005      B           L_11  ; T=0x000000E6
+ 000000DA          L_10:
+   73:             CLR_SDO();    //Send zero to SDO pin
+ 000000DA  4800      LDR         R0,=0xFFFFF430
+ 000000DC  6801      LDR         R1,[R0,#0x0]
+ 000000DE  4800      LDR         R0,=0x400000
+ 000000E0  4381      BIC         R1,R0
+ 000000E2  4800      LDR         R0,=0xFFFFF430
+ 000000E4  6001      STR         R1,[R0,#0x0]
+   74:         }
+ 000000E6          L_11:
+   75:         delay(3);
+ 000000E6  2003      MOV         R0,#0x3
+ 000000E8  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 000000EA  FF8A      BL          delay?T  ; T=0x0001  (2)
+   76:         SET_SCL();
+ 000000EC  4800      LDR         R0,=0xFFFFF430
+ 000000EE  6801      LDR         R1,[R0,#0x0]
+ 000000F0  4800      LDR         R0,=0x100000
+ 000000F2  4301      ORR         R1,R0
+ 000000F4  4800      LDR         R0,=0xFFFFF430
+ 000000F6  6001      STR         R1,[R0,#0x0]
+   77:         delay(3);
+ 000000F8  2003      MOV         R0,#0x3
+ 000000FA  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 000000FC  FF81      BL          delay?T  ; T=0x0001  (2)
+   78:         ControlValue <<= 1; //Rotate data
+ 000000FE  0076      LSL         R6,R6,#0x1 ; ControlValue
+ 00000100  0636      LSL         R6,R6,#0x18
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 7   
+
+ 00000102  0E36      LSR         R6,R6,#0x18
+   79:     }
+ 00000104  3301      ADD         R3,#0x1
+ 00000106  061B      LSL         R3,R3,#0x18
+ 00000108  0E1B      LSR         R3,R3,#0x18
+ 0000010A          L_7:
+ 0000010A  1C18      MOV         R0,R3 ; i
+ 0000010C  0600      LSL         R0,R0,#0x18 ; i
+ 0000010E  0E00      LSR         R0,R0,#0x18
+ 00000110  2806      CMP         R0,#0x6
+ 00000112  DBCF      BLT         L_8  ; T=0x000000B4
+   82:     for (RegisterIndex=NumberofRegisters; RegisterIndex>0; RegisterIndex--)
+ 00000114  1C14      MOV         R4,R2 ; NumberofRegisters
+ 00000116  0624      LSL         R4,R4,#0x18 ; NumberofRegisters
+ 00000118  0E24      LSR         R4,R4,#0x18
+ 0000011A  E03C      B           L_14  ; T=0x00000196
+ 0000011C          L_15:
+   84:         ValueToWrite = *(RegisterData + RegisterIndex - 1);
+ 0000011C  1C20      MOV         R0,R4 ; RegisterIndex
+ 0000011E  0601      LSL         R1,R0,#0x18 ; RegisterIndex
+ 00000120  1609      ASR         R1,R1,#0x18
+ 00000122  1C28      MOV         R0,R5 ; RegisterData
+ 00000124  1840      ADD         R0,R1 ; RegisterData
+ 00000126  3801      SUB         R0,#0x1
+ 00000128  7800      LDRB        R0,[R0,#0x0]
+ 0000012A  AA00      ADD         R2,R13,#0x0
+ 0000012C  7010      STRB        R0,[R2,#0x0] ; ValueToWrite
+   85:         for (i=0; i<8; i++)
+ 0000012E  2300      MOV         R3,#0x0
+ 00000130  E029      B           L_19  ; T=0x00000186
+ 00000132          L_20:
+   87:             CLR_SCL();
+ 00000132  4800      LDR         R0,=0xFFFFF430
+ 00000134  6801      LDR         R1,[R0,#0x0]
+ 00000136  4800      LDR         R0,=0x100000
+ 00000138  4381      BIC         R1,R0
+ 0000013A  4800      LDR         R0,=0xFFFFF430
+ 0000013C  6001      STR         R1,[R0,#0x0]
+   88:             if(0x80 == (ValueToWrite & 0x80))
+ 0000013E  7810      LDRB        R0,[R2,#0x0] ; ValueToWrite
+ 00000140  2180      MOV         R1,#0x80
+ 00000142  4208      TST         R0,R1
+ 00000144  D006      BEQ         L_22  ; T=0x00000154
+   90:                 SET_SDO();    //Send one to SDO pin
+ 00000146  4800      LDR         R0,=0xFFFFF430
+ 00000148  6801      LDR         R1,[R0,#0x0]
+ 0000014A  4800      LDR         R0,=0x400000
+ 0000014C  4301      ORR         R1,R0
+ 0000014E  4800      LDR         R0,=0xFFFFF430
+ 00000150  6001      STR         R1,[R0,#0x0]
+   91:             }
+ 00000152  E005      B           L_23  ; T=0x00000160
+ 00000154          L_22:
+   94:                 CLR_SDO();    //Send zero to SDO pin
+ 00000154  4800      LDR         R0,=0xFFFFF430
+ 00000156  6801      LDR         R1,[R0,#0x0]
+ 00000158  4800      LDR         R0,=0x400000
+ 0000015A  4381      BIC         R1,R0
+ 0000015C  4800      LDR         R0,=0xFFFFF430
+ 0000015E  6001      STR         R1,[R0,#0x0]
+   95:             }
+ 00000160          L_23:
+   96:             delay(3);
+ 00000160  2003      MOV         R0,#0x3
+ 00000162  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000164  FF4D      BL          delay?T  ; T=0x0001  (2)
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 8   
+
+   97:             SET_SCL();
+ 00000166  4800      LDR         R0,=0xFFFFF430
+ 00000168  6801      LDR         R1,[R0,#0x0]
+ 0000016A  4800      LDR         R0,=0x100000
+ 0000016C  4301      ORR         R1,R0
+ 0000016E  4800      LDR         R0,=0xFFFFF430
+ 00000170  6001      STR         R1,[R0,#0x0]
+   98:             delay(3);
+ 00000172  2003      MOV         R0,#0x3
+ 00000174  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000176  FF44      BL          delay?T  ; T=0x0001  (2)
+   99:             ValueToWrite <<= 1; //Rotate data
+ 00000178  A800      ADD         R0,R13,#0x0
+ 0000017A  7801      LDRB        R1,[R0,#0x0] ; ValueToWrite
+ 0000017C  0049      LSL         R1,R1,#0x1
+ 0000017E  7001      STRB        R1,[R0,#0x0] ; ValueToWrite
+  100:         }
+ 00000180  3301      ADD         R3,#0x1
+ 00000182  061B      LSL         R3,R3,#0x18
+ 00000184  0E1B      LSR         R3,R3,#0x18
+ 00000186          L_19:
+ 00000186  1C18      MOV         R0,R3 ; i
+ 00000188  0600      LSL         R0,R0,#0x18 ; i
+ 0000018A  0E00      LSR         R0,R0,#0x18
+ 0000018C  2808      CMP         R0,#0x8
+ 0000018E  DBD0      BLT         L_20  ; T=0x00000132
+  101:     }
+ 00000190  3C01      SUB         R4,#0x1
+ 00000192  0624      LSL         R4,R4,#0x18
+ 00000194  1624      ASR         R4,R4,#0x18
+ 00000196          L_14:
+ 00000196  1C20      MOV         R0,R4 ; RegisterIndex
+ 00000198  0600      LSL         R0,R0,#0x18 ; RegisterIndex
+ 0000019A  1600      ASR         R0,R0,#0x18
+ 0000019C  2800      CMP         R0,#0x0
+ 0000019E  DCBD      BGT         L_15  ; T=0x0000011C
+  102:     SET_CS();   //bring CS high again
+ 000001A0  4800      LDR         R0,=0xFFFFF440
+ 000001A2  6801      LDR         R1,[R0,#0x0]
+ 000001A4  4800      LDR         R0,=0x800000
+ 000001A6  4301      ORR         R1,R0
+ 000001A8  4800      LDR         R0,=0xFFFFF440
+ 000001AA  6001      STR         R1,[R0,#0x0]
+ 000001AC            ; SCOPE-END
+  103: }
+ 000001AC  B001      ADD         R13,#0x4
+ 000001AE  BC70      POP         {R4-R6}
+ 000001B0  BC08      POP         {R3}
+ 000001B2  4718      BX          R3
+ 000001B4          ENDP ; 'WriteToADXL345ViaSpi?T'
+
+
+*** CODE SEGMENT '?PR?ReadFromADXL345ViaSpi?T?SPI':
+  111: void ReadFromADXL345ViaSpi(unsigned char RegisterAddress, unsigned char NumberofRegisters, unsigned char *Registe
+             -rData)
+ 00000000  B570      PUSH        {R4-R6,LR}
+ 00000002  ---- Variable 'RegisterData' assigned to Register 'R2' ----
+ 00000002  1C0D      MOV         R5,R1 ; NumberofRegisters
+ 00000004  ---- Variable 'NumberofRegisters' assigned to Register 'R5' ----
+ 00000004  ---- Variable 'RegisterAddress' assigned to Register 'R0' ----
+ 00000004  B082      SUB         R13,#0x8
+  112: {
+ 00000006            ; SCOPE-START
+  113:     unsigned    char    ControlValue = 0;
+ 00000006  2400      MOV         R4,#0x0
+ 00000008  1C26      MOV         R6,R4 ; ControlValue
+ 0000000A  ---- Variable 'ControlValue' assigned to Register 'R6' ----
+  114:     signed      char    RegisterIndex = 0;
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 9   
+
+ 0000000A  2300      MOV         R3,#0x0
+ 0000000C  A900      ADD         R1,R13,#0x0
+ 0000000E  700B      STRB        R3,[R1,#0x0] ; RegisterIndex
+  115:     unsigned    char    ReceiveData = 0;
+ 00000010  ---- Variable 'ReceiveData' assigned to Register 'R4' ----
+  116:     unsigned    char    i = 0;
+ 00000010  2300      MOV         R3,#0x0
+ 00000012  ---- Variable 'i' assigned to Register 'R3' ----
+  117:     unsigned    int     iTemp = 0;
+ 00000012  2100      MOV         R1,#0x0
+ 00000014  9101      STR         R1,[R13,#0x4] ; iTemp
+  120:     ControlValue = RegisterAddress;
+ 00000016  1C06      MOV         R6,R0 ; RegisterAddress
+  124:     SET_CS();
+ 00000018  4800      LDR         R0,=0xFFFFF440
+ 0000001A  6801      LDR         R1,[R0,#0x0]
+ 0000001C  4800      LDR         R0,=0x800000
+ 0000001E  4301      ORR         R1,R0
+ 00000020  4800      LDR         R0,=0xFFFFF440
+ 00000022  6001      STR         R1,[R0,#0x0]
+  125:     SET_SCL();
+ 00000024  4800      LDR         R0,=0xFFFFF430
+ 00000026  6801      LDR         R1,[R0,#0x0]
+ 00000028  4800      LDR         R0,=0x100000
+ 0000002A  4301      ORR         R1,R0
+ 0000002C  4800      LDR         R0,=0xFFFFF430
+ 0000002E  6001      STR         R1,[R0,#0x0]
+  126:     delay(3);
+ 00000030  2003      MOV         R0,#0x3
+ 00000032  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000034  FFE5      BL          delay?T  ; T=0x0001  (2)
+  127:     CLR_CS();    //bring CS low
+ 00000036  4800      LDR         R0,=0xFFFFF440
+ 00000038  6801      LDR         R1,[R0,#0x0]
+ 0000003A  4800      LDR         R0,=0x800000
+ 0000003C  4381      BIC         R1,R0
+ 0000003E  4800      LDR         R0,=0xFFFFF440
+ 00000040  6001      STR         R1,[R0,#0x0]
+  128:     delay(3);
+ 00000042  2003      MOV         R0,#0x3
+ 00000044  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000046  FFDC      BL          delay?T  ; T=0x0001  (2)
+  130:     CLR_SCL();
+ 00000048  4800      LDR         R0,=0xFFFFF430
+ 0000004A  6801      LDR         R1,[R0,#0x0]
+ 0000004C  4800      LDR         R0,=0x100000
+ 0000004E  4381      BIC         R1,R0
+ 00000050  4800      LDR         R0,=0xFFFFF430
+ 00000052  6001      STR         R1,[R0,#0x0]
+  131:     SET_SDO();   //set READ bit
+ 00000054  4800      LDR         R0,=0xFFFFF430
+ 00000056  6801      LDR         R1,[R0,#0x0]
+ 00000058  4800      LDR         R0,=0x400000
+ 0000005A  4301      ORR         R1,R0
+ 0000005C  4800      LDR         R0,=0xFFFFF430
+ 0000005E  6001      STR         R1,[R0,#0x0]
+  132:     delay(3);
+ 00000060  2003      MOV         R0,#0x3
+ 00000062  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000064  FFCD      BL          delay?T  ; T=0x0001  (2)
+  133:     SET_SCL();
+ 00000066  4800      LDR         R0,=0xFFFFF430
+ 00000068  6801      LDR         R1,[R0,#0x0]
+ 0000006A  4800      LDR         R0,=0x100000
+ 0000006C  4301      ORR         R1,R0
+ 0000006E  4800      LDR         R0,=0xFFFFF430
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 10  
+
+ 00000070  6001      STR         R1,[R0,#0x0]
+  134:     delay(3);
+ 00000072  2003      MOV         R0,#0x3
+ 00000074  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000076  FFC4      BL          delay?T  ; T=0x0001  (2)
+  135:     ControlValue <<= 1;
+ 00000078  0076      LSL         R6,R6,#0x1 ; ControlValue
+ 0000007A  0636      LSL         R6,R6,#0x18
+ 0000007C  0E36      LSR         R6,R6,#0x18
+  137:     CLR_SCL();
+ 0000007E  4800      LDR         R0,=0xFFFFF430
+ 00000080  6801      LDR         R1,[R0,#0x0]
+ 00000082  4800      LDR         R0,=0x100000
+ 00000084  4381      BIC         R1,R0
+ 00000086  4800      LDR         R0,=0xFFFFF430
+ 00000088  6001      STR         R1,[R0,#0x0]
+  138:     SET_SDO();  //set MB bit
+ 0000008A  4800      LDR         R0,=0xFFFFF430
+ 0000008C  6801      LDR         R1,[R0,#0x0]
+ 0000008E  4800      LDR         R0,=0x400000
+ 00000090  4301      ORR         R1,R0
+ 00000092  4800      LDR         R0,=0xFFFFF430
+ 00000094  6001      STR         R1,[R0,#0x0]
+  139:     delay(3);
+ 00000096  2003      MOV         R0,#0x3
+ 00000098  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 0000009A  FFB2      BL          delay?T  ; T=0x0001  (2)
+  140:     SET_SCL();
+ 0000009C  4800      LDR         R0,=0xFFFFF430
+ 0000009E  6801      LDR         R1,[R0,#0x0]
+ 000000A0  4800      LDR         R0,=0x100000
+ 000000A2  4301      ORR         R1,R0
+ 000000A4  4800      LDR         R0,=0xFFFFF430
+ 000000A6  6001      STR         R1,[R0,#0x0]
+  141:     delay(3);
+ 000000A8  2003      MOV         R0,#0x3
+ 000000AA  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 000000AC  FFA9      BL          delay?T  ; T=0x0001  (2)
+  142:     ControlValue <<= 1;
+ 000000AE  0076      LSL         R6,R6,#0x1 ; ControlValue
+ 000000B0  0636      LSL         R6,R6,#0x18
+ 000000B2  0E36      LSR         R6,R6,#0x18
+  145:     for(i=0; i<6; i++)
+ 000000B4  2300      MOV         R3,#0x0
+ 000000B6  E02A      B           L_26  ; T=0x0000010E
+ 000000B8          L_27:
+  147:         CLR_SCL();
+ 000000B8  4800      LDR         R0,=0xFFFFF430
+ 000000BA  6801      LDR         R1,[R0,#0x0]
+ 000000BC  4800      LDR         R0,=0x100000
+ 000000BE  4381      BIC         R1,R0
+ 000000C0  4800      LDR         R0,=0xFFFFF430
+ 000000C2  6001      STR         R1,[R0,#0x0]
+  148:         if(0x80 == (ControlValue & 0x80))
+ 000000C4  1C30      MOV         R0,R6 ; ControlValue
+ 000000C6  0600      LSL         R0,R0,#0x18 ; ControlValue
+ 000000C8  0E00      LSR         R0,R0,#0x18
+ 000000CA  2180      MOV         R1,#0x80
+ 000000CC  4208      TST         R0,R1
+ 000000CE  D006      BEQ         L_29  ; T=0x000000DE
+  150:             SET_SDO();    //Send one to SDO pin
+ 000000D0  4800      LDR         R0,=0xFFFFF430
+ 000000D2  6801      LDR         R1,[R0,#0x0]
+ 000000D4  4800      LDR         R0,=0x400000
+ 000000D6  4301      ORR         R1,R0
+ 000000D8  4800      LDR         R0,=0xFFFFF430
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 11  
+
+ 000000DA  6001      STR         R1,[R0,#0x0]
+  151:         }
+ 000000DC  E005      B           L_30  ; T=0x000000EA
+ 000000DE          L_29:
+  154:             CLR_SDO();    //Send zero to SDO pin
+ 000000DE  4800      LDR         R0,=0xFFFFF430
+ 000000E0  6801      LDR         R1,[R0,#0x0]
+ 000000E2  4800      LDR         R0,=0x400000
+ 000000E4  4381      BIC         R1,R0
+ 000000E6  4800      LDR         R0,=0xFFFFF430
+ 000000E8  6001      STR         R1,[R0,#0x0]
+  155:         }
+ 000000EA          L_30:
+  156:         delay(3);
+ 000000EA  2003      MOV         R0,#0x3
+ 000000EC  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 000000EE  FF88      BL          delay?T  ; T=0x0001  (2)
+  157:         SET_SCL();
+ 000000F0  4800      LDR         R0,=0xFFFFF430
+ 000000F2  6801      LDR         R1,[R0,#0x0]
+ 000000F4  4800      LDR         R0,=0x100000
+ 000000F6  4301      ORR         R1,R0
+ 000000F8  4800      LDR         R0,=0xFFFFF430
+ 000000FA  6001      STR         R1,[R0,#0x0]
+  158:         delay(3);
+ 000000FC  2003      MOV         R0,#0x3
+ 000000FE  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000100  FF7F      BL          delay?T  ; T=0x0001  (2)
+  159:         ControlValue <<= 1; //Rotate data
+ 00000102  0076      LSL         R6,R6,#0x1 ; ControlValue
+ 00000104  0636      LSL         R6,R6,#0x18
+ 00000106  0E36      LSR         R6,R6,#0x18
+  160:     }
+ 00000108  3301      ADD         R3,#0x1
+ 0000010A  061B      LSL         R3,R3,#0x18
+ 0000010C  0E1B      LSR         R3,R3,#0x18
+ 0000010E          L_26:
+ 0000010E  1C18      MOV         R0,R3 ; i
+ 00000110  0600      LSL         R0,R0,#0x18 ; i
+ 00000112  0E00      LSR         R0,R0,#0x18
+ 00000114  2806      CMP         R0,#0x6
+ 00000116  DBCF      BLT         L_27  ; T=0x000000B8
+  163:     for (RegisterIndex=NumberofRegisters; RegisterIndex>0; RegisterIndex--)
+ 00000118  1C29      MOV         R1,R5 ; NumberofRegisters
+ 0000011A  0609      LSL         R1,R1,#0x18 ; NumberofRegisters
+ 0000011C  0E09      LSR         R1,R1,#0x18
+ 0000011E  A800      ADD         R0,R13,#0x0
+ 00000120  7001      STRB        R1,[R0,#0x0] ; RegisterIndex
+ 00000122  E037      B           L_33  ; T=0x00000194
+  165:         for(i=0; i<8; i++)
+ 00000124          L_40:
+ 00000124  2300      MOV         R3,#0x0
+ 00000126  E020      B           L_38  ; T=0x0000016A
+ 00000128          L_39:
+  167:             CLR_SCL();
+ 00000128  4800      LDR         R0,=0xFFFFF430
+ 0000012A  6801      LDR         R1,[R0,#0x0]
+ 0000012C  4800      LDR         R0,=0x100000
+ 0000012E  4381      BIC         R1,R0
+ 00000130  4800      LDR         R0,=0xFFFFF430
+ 00000132  6001      STR         R1,[R0,#0x0]
+  168:             ReceiveData <<= 1;      //Rotate data
+ 00000134  0064      LSL         R4,R4,#0x1 ; ReceiveData
+ 00000136  0624      LSL         R4,R4,#0x18
+ 00000138  0E24      LSR         R4,R4,#0x18
+  169:             delay(3);
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 12  
+
+ 0000013A  2003      MOV         R0,#0x3
+ 0000013C  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 0000013E  FF60      BL          delay?T  ; T=0x0001  (2)
+  170:             SET_SCL();
+ 00000140  4800      LDR         R0,=0xFFFFF430
+ 00000142  6801      LDR         R1,[R0,#0x0]
+ 00000144  4800      LDR         R0,=0x100000
+ 00000146  4301      ORR         R1,R0
+ 00000148  4800      LDR         R0,=0xFFFFF430
+ 0000014A  6001      STR         R1,[R0,#0x0]
+  171:             iTemp = GP1DAT;         //Read SDI of ADXL345
+ 0000014C  4800      LDR         R0,=0xFFFFF430
+ 0000014E  6800      LDR         R0,[R0,#0x0]
+ 00000150  9001      STR         R0,[R13,#0x4] ; iTemp
+  172:             if(0x00000020 == (iTemp & 0x00000020))             //SDI  P1.5
+ 00000152  9801      LDR         R0,[R13,#0x4] ; iTemp
+ 00000154  2120      MOV         R1,#0x20
+ 00000156  4208      TST         R0,R1
+ 00000158  D001      BEQ         L_41  ; T=0x0000015E
+  174:                 ReceiveData |= 1;   
+ 0000015A  2001      MOV         R0,#0x1
+ 0000015C  4304      ORR         R4,R0
+  175:             }
+ 0000015E          L_41:
+  176:             delay(2);
+ 0000015E  2002      MOV         R0,#0x2
+ 00000160  F7FF      BL          delay?T  ; T=0x0001  (1)
+ 00000162  FF4E      BL          delay?T  ; T=0x0001  (2)
+  177:         }
+ 00000164  3301      ADD         R3,#0x1
+ 00000166  061B      LSL         R3,R3,#0x18
+ 00000168  0E1B      LSR         R3,R3,#0x18
+ 0000016A          L_38:
+ 0000016A  1C18      MOV         R0,R3 ; i
+ 0000016C  0600      LSL         R0,R0,#0x18 ; i
+ 0000016E  0E00      LSR         R0,R0,#0x18
+ 00000170  2808      CMP         R0,#0x8
+ 00000172  DBD9      BLT         L_39  ; T=0x00000128
+  178:         *(RegisterData + RegisterIndex - 1) = ReceiveData;
+ 00000174  1C21      MOV         R1,R4 ; ReceiveData
+ 00000176  A800      ADD         R0,R13,#0x0
+ 00000178  7800      LDRB        R0,[R0,#0x0] ; RegisterIndex
+ 0000017A  0600      LSL         R0,R0,#0x18
+ 0000017C  1600      ASR         R0,R0,#0x18
+ 0000017E  1C05      MOV         R5,R0
+ 00000180  1C10      MOV         R0,R2 ; RegisterData
+ 00000182  1940      ADD         R0,R5 ; RegisterData
+ 00000184  3801      SUB         R0,#0x1
+ 00000186  7001      STRB        R1,[R0,#0x0]
+  179:     }
+ 00000188  A800      ADD         R0,R13,#0x0
+ 0000018A  7801      LDRB        R1,[R0,#0x0] ; RegisterIndex
+ 0000018C  0609      LSL         R1,R1,#0x18
+ 0000018E  1609      ASR         R1,R1,#0x18
+ 00000190  3901      SUB         R1,#0x1
+ 00000192  7001      STRB        R1,[R0,#0x0] ; RegisterIndex
+ 00000194          L_33:
+ 00000194  A800      ADD         R0,R13,#0x0
+ 00000196  7800      LDRB        R0,[R0,#0x0] ; RegisterIndex
+ 00000198  0600      LSL         R0,R0,#0x18
+ 0000019A  1600      ASR         R0,R0,#0x18
+ 0000019C  2800      CMP         R0,#0x0
+ 0000019E  DCC1      BGT         L_40  ; T=0x00000124
+  180:     SET_CS();   //bring CS high again
+ 000001A0  4800      LDR         R0,=0xFFFFF440
+ 000001A2  6801      LDR         R1,[R0,#0x0]
+ARM COMPILER V2.40c,  SPI                                                                  16/12/09  15:50:56  PAGE 13  
+
+ 000001A4  4800      LDR         R0,=0x800000
+ 000001A6  4301      ORR         R1,R0
+ 000001A8  4800      LDR         R0,=0xFFFFF440
+ 000001AA  6001      STR         R1,[R0,#0x0]
+ 000001AC            ; SCOPE-END
+  181: } 
+ 000001AC  B002      ADD         R13,#0x8
+ 000001AE  BC70      POP         {R4-R6}
+ 000001B0  BC08      POP         {R3}
+ 000001B2  4718      BX          R3
+ 000001B4          ENDP ; 'ReadFromADXL345ViaSpi?T'
+
+
+
+Module Information          Static
+----------------------------------
+  code size            =    ------
+  data size            =    ------
+  const size           =    ------
+End of Module Information.
+
+
+ARM COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
